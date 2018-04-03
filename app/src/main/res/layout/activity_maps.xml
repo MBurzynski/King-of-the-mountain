@@ -1,3 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
 <fragment xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:map="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
@@ -6,3 +13,22 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context="com.example.marcin.kingofthemountain.MapsActivity" />
+
+    <Button
+        android:id="@+id/buttonGetSegments"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@color/colorPrimaryDark"
+        android:textColor="@color/colorWhite"
+        android:padding="5dp"
+        android:layout_marginBottom="10dp"
+        android:foregroundGravity="center"
+        android:scaleType="fitXY"
+        android:text="Wyszukaj segmenty"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        android:onClick="updateSegmentsOnMap"/>
+
+</android.support.constraint.ConstraintLayout>
