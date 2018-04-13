@@ -56,6 +56,8 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
     private FusedLocationProviderClient mFusedLocationProviderClient;
     private Map<Polyline, Segment> visibleSegments;
     private List<Marker> visibleMarkers;
+    private Wind currentWind;
+    private Segment currentSegment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -145,7 +147,7 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
             @Override
             public void onResponse(Call<SegmentRoot> call, Response<SegmentRoot> response) {
                 SegmentRoot segmentsData = response.body();
-                Toast.makeText(getApplicationContext(),"Udało się pobrać segmenty", Toast.LENGTH_LONG).show();
+                Toast.makeText(getApplicationContext(),"Udało się pobrać segmenty", Toast.LENGTH_SHORT).show();
                 List<Segment> segments = segmentsData.getSegments();
                 for( Segment segment:segments){
                     Log.d("ID ", segment.getId().toString());
@@ -156,7 +158,7 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
 
             @Override
             public void onFailure(Call<SegmentRoot> call, Throwable t) {
-                Toast.makeText(getApplicationContext(),"Nie udało się pobrać segmentów: " + t.getMessage(), Toast.LENGTH_LONG).show();
+                Toast.makeText(getApplicationContext(),"Nie udało się pobrać segmentów: " + t.getMessage(), Toast.LENGTH_SHORT).show();
                 Log.d("Błąd: ", t.getMessage());
             }
         });
@@ -178,17 +180,18 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
             @Override
             public void onResponse(Call<WeatherRoot> call, Response<WeatherRoot> response) {
                 WeatherRoot weatherData = response.body();
-                Toast.makeText(getApplicationContext(),"Udało się pobrać dane pogodowe", Toast.LENGTH_LONG).show();
-                Wind wind = weatherData.getWind();
-                Main weatherMainData = weatherData.getMain();
-                Toast.makeText(getApplicationContext(),
-                        "Temperatura: " + weatherMainData.getTemp().toString() + "\n Wiatr: " + wind.getSpeed().toString(), Toast.LENGTH_LONG).show();
+                Toast.makeText(getApplicationContext(),"Udało się pobrać dane pogodowe", Toast.LENGTH_SHORT).show();
+                currentWind = new Wind(weatherData.getWind());
+                calculateWindOnSegment();
+//                Main weatherMainData = weatherData.getMain();
+//                Toast.makeText(getApplicationContext(),
+//                        "Temperatura: " + weatherMainData.getTemp().toString() + "\n Wiatr: " + currentWind.getDeg().toString(), Toast.LENGTH_LONG).show();
 
             }
 
             @Override
             public void onFailure(Call<WeatherRoot> call, Throwable t) {
-                Toast.makeText(getApplicationContext(),"Nie udało się pobrać danych pogodowych: " + t.getMessage(), Toast.LENGTH_LONG).show();
+                Toast.makeText(getApplicationContext(),"Nie udało się pobrać danych pogodowych: " + t.getMessage(), Toast.LENGTH_SHORT).show();
                 Log.d("Błąd: ", t.getMessage());
             }
         });
@@ -210,7 +213,7 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
 
     @Override
     public void onMyLocationClick(@NonNull Location location) {
-        Toast.makeText(this,boundsToString(mMap.getProjection().getVisibleRegion().latLngBounds),2*Toast.LENGTH_LONG).show();
+        Toast.makeText(this,boundsToString(mMap.getProjection().getVisibleRegion().latLngBounds),2*Toast.LENGTH_SHORT).show();
         Log.d("AAAAAAAAAAAAAAAAAAA: ", "pRZED REMOVESEGMENTS");
         removeSegmentsFromMap();
         Log.d("AAAAAAAAAAAAAAAAAAA: ", "PO REMOVESEGMENTS");
@@ -220,14 +223,35 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
 
     @Override
     public boolean onMarkerClick(Marker marker) {
+        Toast.makeText(this, "Wind " + String.valueOf(currentWind.getDeg())
+                , Toast.LENGTH_LONG).show();
         return false;
     }
 
     @Override
     public void onPolylineClick(Polyline polyline) {
-//        Toast.makeText(this, visibleSegments.get(polyline).getName(),Toast.LENGTH_LONG).show();
-        getWeather(visibleSegments.get(polyline).getStartLatlng());
+        currentSegment = visibleSegments.get(polyline);
+        getWeather(currentSegment.getStartLatlng());
+
+
     }
+
+    private void calculateWindOnSegment(){
+        WindOnSegment windOnSegment = new WindOnSegment(currentSegment, currentWind);
+        Toast.makeText(this, "Wind on segment: " + String.valueOf(windOnSegment.getCurrentWind().getDeg())
+                , Toast.LENGTH_SHORT).show();
+        windOnSegment.computeWindOnSegment();
+        Toast.makeText(this, "Procent trasy z wiatrem z przodu: " + String.valueOf(windOnSegment.getPercentageHeadWind())
+                , Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, "Procent trasy z wiatrem z tyłu: " + String.valueOf(windOnSegment.getPercentageTailWind())
+                , Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, "Procent trasy z wiatrem z prawej: " + String.valueOf(windOnSegment.getPercentageRightWind())
+                , Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, "Procent trasy z wiatrem z lewej: " + String.valueOf(windOnSegment.getPercentageLeftWind())
+                , Toast.LENGTH_SHORT).show();
+    }
+
+
 
 
     private String boundsToString(LatLngBounds latLngBounds){
@@ -240,6 +264,10 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
 
     private void addSegmentToMap(String polyline, Segment segment){
         segment.setPointsDecoded(PolyUtil.decode(polyline));
+        LatLng startPoint = new LatLng(segment.getStartLatlng().get(0),segment.getStartLatlng().get(1));
+        LatLng endPoint = new LatLng(segment.getEndLatlng().get(0),segment.getEndLatlng().get(1));
+        segment.setStartPoint(startPoint);
+        segment.setEndPoint(endPoint);
         Polyline segmentLine = mMap.addPolyline(new PolylineOptions()
                 .clickable(true)
                 .addAll(segment.getPointsDecoded()));

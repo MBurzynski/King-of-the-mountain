@@ -47,6 +47,9 @@ public class Segment {
 
     List<LatLng> pointsDecoded;
 
+    LatLng startPoint;
+    LatLng endPoint;
+
     /**
      * No args constructor for use in serialization
      *
@@ -189,4 +192,18 @@ public class Segment {
         this.pointsDecoded = pointsDecoded;
     }
 
+    public LatLng getStartPoint() {
+        return startPoint;
+    }
+
+    public void setStartPoint(LatLng startPoint) {
+        this.startPoint = startPoint;
+    }
+    public LatLng getEndPoint() {
+        return endPoint;
+    }
+
+    public void setEndPoint(LatLng endPoint) {
+        this.endPoint = endPoint;
+    }
 }
