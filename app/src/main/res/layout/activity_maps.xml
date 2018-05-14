@@ -29,6 +29,6 @@
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        android:onClick="updateSegmentsOnMap"/>
+        android:onClick="updateSegmentsAndWeatherOnMap"/>
 
 </android.support.constraint.ConstraintLayout>

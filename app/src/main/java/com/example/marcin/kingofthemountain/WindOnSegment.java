@@ -48,31 +48,35 @@ public class WindOnSegment {
         double totalRightWind = 0;
         double totalHeadWind = 0;
         double totalLeftWind = 0;
+        double totalLength = 0;
 
         int numberOfShortSectors = segmentRoute.size()-1;
 
         for (int i=0; i<numberOfShortSectors;i++){
             double sectorDirection = convertAngleTo360(SphericalUtil.computeHeading(segmentRoute.get(i+1), segmentRoute.get(i)));
+            double sectorLength = SphericalUtil.computeDistanceBetween(segmentRoute.get(i+1), segmentRoute.get(i));
             double windOnShortSector = computeWindOnShortSector(currentWind.getDeg().doubleValue(), sectorDirection);
 
             if(windOnShortSector>=TAIL && windOnShortSector < RIGHT){
-                totalTailWind += compatibilityWithWindDirection(windOnShortSector, TAIL);
-                totalRightWind += compatibilityWithWindDirection(windOnShortSector, RIGHT);
+                totalTailWind += compatibilityWithWindDirection(windOnShortSector, TAIL, sectorLength);
+                totalRightWind += compatibilityWithWindDirection(windOnShortSector, RIGHT, sectorLength);
             }
             else if(windOnShortSector>=RIGHT && windOnShortSector < HEAD){
-                totalRightWind += compatibilityWithWindDirection(windOnShortSector, RIGHT);
-                totalHeadWind += compatibilityWithWindDirection(windOnShortSector, HEAD);
+                totalRightWind += compatibilityWithWindDirection(windOnShortSector, RIGHT, sectorLength);
+                totalHeadWind += compatibilityWithWindDirection(windOnShortSector, HEAD, sectorLength);
 
             }
             else if(windOnShortSector>=HEAD && windOnShortSector < LEFT){
-                totalHeadWind += compatibilityWithWindDirection(windOnShortSector, HEAD);
-                totalLeftWind += compatibilityWithWindDirection(windOnShortSector, LEFT);
+                totalHeadWind += compatibilityWithWindDirection(windOnShortSector, HEAD, sectorLength);
+                totalLeftWind += compatibilityWithWindDirection(windOnShortSector, LEFT, sectorLength);
             }
             else if(windOnShortSector>=LEFT && windOnShortSector < 360){
-                totalLeftWind += compatibilityWithWindDirection(windOnShortSector, LEFT);
-                totalTailWind += compatibilityWithWindDirection(windOnShortSector, 360);
+                totalLeftWind += compatibilityWithWindDirection(windOnShortSector, LEFT, sectorLength);
+                totalTailWind += compatibilityWithWindDirection(windOnShortSector, 360, sectorLength);
 
             }
+
+            totalLength += sectorLength;
             Log.d("numberOfSector: ", String.valueOf(i));
             Log.d("Total Head Wind: ", String.valueOf(totalHeadWind));
             Log.d("Total Tail Wind: ", String.valueOf(totalTailWind));
@@ -80,10 +84,10 @@ public class WindOnSegment {
             Log.d("Total Right Wind: ", String.valueOf(totalRightWind));
         }
 
-        percentageHeadWind = totalHeadWind / numberOfShortSectors * 100;
-        percentageTailWind = totalTailWind / numberOfShortSectors * 100;
-        percentageLeftWind = totalLeftWind / numberOfShortSectors * 100;
-        percentageRightWind = totalRightWind / numberOfShortSectors * 100;
+        percentageHeadWind = totalHeadWind / totalLength * 100;
+        percentageTailWind = totalTailWind / totalLength * 100;
+        percentageLeftWind = totalLeftWind / totalLength * 100;
+        percentageRightWind = totalRightWind / totalLength * 100;
 
     }
 
@@ -99,8 +103,8 @@ public class WindOnSegment {
     /***
      * @return values from 0 to 1
      */
-    private double compatibilityWithWindDirection(double computedWindPerSector, Integer referenceWind){
-        return (90 - abs(referenceWind - computedWindPerSector)) / 90;
+    private double compatibilityWithWindDirection(double computedWindPerSector, Integer referenceWind, double sectorLength){
+        return (90 - abs(referenceWind - computedWindPerSector)) / 90 * sectorLength;
     }
 
     private double convertAngleTo360 (double angle180){

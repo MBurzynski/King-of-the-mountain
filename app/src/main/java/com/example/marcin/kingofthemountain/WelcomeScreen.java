@@ -10,7 +10,7 @@ import android.widget.ImageView;
 
 public class WelcomeScreen extends AppCompatActivity {
 
-    public static int WELCOME_SCREEN_TIME = 1000;
+    public static int WELCOME_SCREEN_TIME = 3000;
     ImageView logo;
     ImageView mountains;
     Animation fromBottom;
@@ -31,8 +31,8 @@ public class WelcomeScreen extends AppCompatActivity {
         new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {
-                Intent mainScreen = new Intent(WelcomeScreen.this,MainActivity.class);
-                startActivity(mainScreen);
+                Intent authScreen = new Intent(WelcomeScreen.this,AuthActivity.class);
+                startActivity(authScreen);
                 finish();
             }
         },WELCOME_SCREEN_TIME);

@@ -6,18 +6,28 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+import android.widget.TextView;
 
 public class MainActivity extends AppCompatActivity {
 
-    Button searchSegments;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        TextView token = findViewById(R.id.textViewToken);
+        token.setText(AuthActivity.getStravaAccessToken(this));
+
 
     }
 
-    public void searchSegments(View view)
+
+    public void pickOptions(View view)
+    {
+        Intent intent = new Intent(MainActivity.this, com.example.marcin.kingofthemountain.SegmentOptions.class);
+        startActivity(intent);
+    }
+
+    public void searchStarredSegments(View view)
     {
         Intent intent = new Intent(MainActivity.this, com.example.marcin.kingofthemountain.MapsActivity.class);
         startActivity(intent);

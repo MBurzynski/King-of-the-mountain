@@ -1,8 +1,13 @@
 package com.example.marcin.kingofthemountain.StravaAPI;
 
+import android.widget.Toast;
+
 import java.util.List;
 
+import com.example.marcin.kingofthemountain.OpenWeatherMapAPI.Wind;
+import com.example.marcin.kingofthemountain.WindOnSegment;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Polyline;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
@@ -46,6 +51,9 @@ public class Segment {
     private Boolean starred;
 
     List<LatLng> pointsDecoded;
+    Polyline polyline;
+
+    WindOnSegment windOnSegment;
 
     LatLng startPoint;
     LatLng endPoint;
@@ -92,88 +100,44 @@ public class Segment {
         return id;
     }
 
-    public void setId(Integer id) {
-        this.id = id;
-    }
-
     public Integer getResourceState() {
         return resourceState;
-    }
-
-    public void setResourceState(Integer resourceState) {
-        this.resourceState = resourceState;
     }
 
     public String getName() {
         return name;
     }
 
-    public void setName(String name) {
-        this.name = name;
-    }
-
     public Integer getClimbCategory() {
         return climbCategory;
-    }
-
-    public void setClimbCategory(Integer climbCategory) {
-        this.climbCategory = climbCategory;
     }
 
     public String getClimbCategoryDesc() {
         return climbCategoryDesc;
     }
 
-    public void setClimbCategoryDesc(String climbCategoryDesc) {
-        this.climbCategoryDesc = climbCategoryDesc;
-    }
-
     public Double getAvgGrade() {
         return avgGrade;
-    }
-
-    public void setAvgGrade(Double avgGrade) {
-        this.avgGrade = avgGrade;
     }
 
     public List<Double> getStartLatlng() {
         return startLatlng;
     }
 
-    public void setStartLatlng(List<Double> startLatlng) {
-        this.startLatlng = startLatlng;
-    }
-
     public List<Double> getEndLatlng() {
         return endLatlng;
-    }
-
-    public void setEndLatlng(List<Double> endLatlng) {
-        this.endLatlng = endLatlng;
     }
 
     public Double getElevDifference() {
         return elevDifference;
     }
 
-    public void setElevDifference(Double elevDifference) {
-        this.elevDifference = elevDifference;
-    }
-
     public Double getDistance() {
         return distance;
     }
 
-    public void setDistance(Double distance) {
-        this.distance = distance;
-    }
-
     public String getPoints() {
         return points;
-    }
-
-    public void setPoints(String points) {
-        this.points = points;
     }
 
     public Boolean getStarred() {
@@ -205,5 +169,27 @@ public class Segment {
 
     public void setEndPoint(LatLng endPoint) {
         this.endPoint = endPoint;
+    }
+
+    public Polyline getPolyline() {
+        return polyline;
+    }
+
+    public void setPolyline(Polyline polyline) {
+        this.polyline = polyline;
+    }
+
+    public WindOnSegment getWindOnSegment() {
+        return windOnSegment;
+    }
+
+    public void setWindOnSegment(WindOnSegment windOnSegment) {
+        this.windOnSegment = windOnSegment;
+    }
+
+    public void calculateWindOnSegment(Wind wind){
+        WindOnSegment windOnSegment = new WindOnSegment(this, wind);
+        this.setWindOnSegment(windOnSegment);
+        windOnSegment.computeWindOnSegment();
     }
 }

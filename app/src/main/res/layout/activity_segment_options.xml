@@ -1,0 +1,223 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.example.marcin.kingofthemountain.SegmentOptions">
+
+    <ImageView
+        android:id="@+id/background"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@drawable/background"
+        tools:layout_editor_absoluteX="0dp"
+        tools:layout_editor_absoluteY="0dp" />
+
+    <TextView
+        android:id="@+id/textView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:text="@string/segmentOptionsTitle"
+        android:textAlignment="center"
+        android:textColor="@android:color/white"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/background" />
+
+    <TextView
+        android:id="@+id/textViewMinDist"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="24dp"
+        android:layout_marginTop="24dp"
+        android:text="@string/segmentOptionsMinDist"
+        android:textAlignment="center"
+        android:textColor="@android:color/white"
+        android:textSize="16sp"
+        app:layout_constraintEnd_toStartOf="@+id/guideline"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textView" />
+
+    <TextView
+        android:id="@+id/textViewMaxDist"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="24dp"
+        android:layout_marginStart="8dp"
+        android:text="@string/segmentOptionsMaxDist"
+        android:textAlignment="center"
+        android:textColor="@android:color/white"
+        android:textSize="16sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="@+id/guideline"
+        app:layout_constraintTop_toTopOf="@+id/textViewMinDist" />
+
+    <SeekBar
+        android:id="@+id/seekBarMinDist"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:progress="0"
+        app:layout_constraintEnd_toEndOf="@+id/textViewMinDist"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="@+id/textViewMinDist"
+        app:layout_constraintTop_toBottomOf="@+id/textViewMinDistVal" />
+
+    <SeekBar
+        android:id="@+id/seekBarMaxDist"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:progress="100"
+        app:layout_constraintEnd_toEndOf="@+id/textViewMaxDist"
+        app:layout_constraintStart_toStartOf="@+id/textViewMaxDist"
+        app:layout_constraintTop_toTopOf="@+id/seekBarMinDist" />
+
+    <TextView
+        android:id="@+id/textViewMinDistVal"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="16dp"
+        android:text=""
+        app:layout_constraintEnd_toEndOf="@+id/textViewMinDist"
+        app:layout_constraintStart_toStartOf="@+id/textViewMinDist"
+        app:layout_constraintTop_toBottomOf="@+id/textViewMinDist" />
+
+    <TextView
+        android:id="@+id/textViewMaxDistVal"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
+        android:text=""
+        app:layout_constraintEnd_toEndOf="@+id/textViewMaxDist"
+        app:layout_constraintStart_toStartOf="@+id/textViewMaxDist"
+        app:layout_constraintTop_toTopOf="@+id/textViewMinDistVal" />
+
+    <TextView
+        android:id="@+id/textViewMinGrade"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="32dp"
+        android:text="@string/segmentOptionsMinGrade"
+        android:textAlignment="center"
+        android:textColor="@android:color/white"
+        android:textSize="16sp"
+        app:layout_constraintEnd_toEndOf="@+id/seekBarMinDist"
+        app:layout_constraintStart_toStartOf="@+id/seekBarMinDist"
+        app:layout_constraintTop_toBottomOf="@+id/seekBarMinDist" />
+
+    <TextView
+        android:id="@+id/textViewMaxGrade"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="@string/segmentOptionsMaxGrade"
+        android:textAlignment="center"
+        android:textColor="@android:color/white"
+        android:textSize="16sp"
+        app:layout_constraintEnd_toEndOf="@+id/seekBarMaxDist"
+        app:layout_constraintStart_toStartOf="@+id/seekBarMaxDist"
+        app:layout_constraintTop_toTopOf="@+id/textViewMinGrade" />
+
+    <android.support.constraint.Guideline
+        android:id="@+id/guideline"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_begin="192dp" />
+
+    <com.michaelmuenzer.android.scrollablennumberpicker.ScrollableNumberPicker
+        android:id="@+id/numberPickerMinGrade"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="16dp"
+        app:layout_constraintEnd_toEndOf="@+id/textViewMinGrade"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="@+id/textViewMinGrade"
+        app:layout_constraintTop_toBottomOf="@+id/textViewMinGrade"
+        app:snp_scrollEnabled="true"
+        app:snp_updateInterval="25"
+        app:snp_maxValue="30"
+        app:snp_minValue="-30"
+        app:snp_stepSize="1"
+        app:snp_value="0"
+        app:snp_orientation="horizontal"
+        app:snp_value_text_size="24sp"
+        app:snp_value_text_color="@color/white"/>
+
+    <com.michaelmuenzer.android.scrollablennumberpicker.ScrollableNumberPicker
+        android:id="@+id/numberPickerMaxGrade"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="16dp"
+        app:layout_constraintEnd_toEndOf="@+id/textViewMaxGrade"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="@+id/textViewMaxGrade"
+        app:layout_constraintTop_toBottomOf="@+id/textViewMaxGrade"
+        app:snp_scrollEnabled="true"
+        app:snp_updateInterval="25"
+        app:snp_maxValue="30"
+        app:snp_minValue="-30"
+        app:snp_stepSize="1"
+        app:snp_value="10"
+        app:snp_orientation="horizontal"
+        app:snp_value_text_size="24sp"
+        app:snp_value_text_color="@color/white"/>
+
+    <TextView
+        android:id="@+id/textViewMinWind"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="32dp"
+        android:text="@string/segmentOptionsMinTailWind"
+        android:textColor="@android:color/white"
+        android:textSize="16sp"
+        app:layout_constraintEnd_toEndOf="@+id/textViewMaxGrade"
+        app:layout_constraintStart_toStartOf="@+id/textViewMinGrade"
+        app:layout_constraintTop_toBottomOf="@+id/numberPickerMinGrade" />
+
+    <com.michaelmuenzer.android.scrollablennumberpicker.ScrollableNumberPicker
+        android:id="@+id/numberPickerMinWind"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="16dp"
+        app:layout_constraintEnd_toEndOf="@+id/textViewMinWind"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="@+id/textViewMinWind"
+        app:layout_constraintTop_toBottomOf="@+id/textViewMinWind"
+        app:snp_scrollEnabled="true"
+        app:snp_updateInterval="25"
+        app:snp_maxValue="100"
+        app:snp_minValue="0"
+        app:snp_stepSize="1"
+        app:snp_value="30"
+        app:snp_orientation="horizontal"
+        app:snp_value_text_size="24sp"
+        app:snp_value_text_color="@color/white"/>
+
+    <Button
+        android:id="@+id/buttonSearch"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="48dp"
+        android:text="@string/segmentSearch"
+        android:onClick="searchSegments"
+        app:layout_constraintEnd_toEndOf="@+id/textViewMinWind"
+        app:layout_constraintStart_toStartOf="@+id/textViewMinWind"
+        app:layout_constraintTop_toBottomOf="@+id/numberPickerMinWind" />
+
+
+</android.support.constraint.ConstraintLayout>

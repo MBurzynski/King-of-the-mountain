@@ -12,7 +12,6 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
-import com.example.marcin.kingofthemountain.OpenWeatherMapAPI.Main;
 import com.example.marcin.kingofthemountain.OpenWeatherMapAPI.OpenWeatherMapAPI;
 import com.example.marcin.kingofthemountain.OpenWeatherMapAPI.WeatherRoot;
 import com.example.marcin.kingofthemountain.OpenWeatherMapAPI.Wind;
@@ -25,6 +24,7 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
@@ -36,9 +36,8 @@ import com.google.android.gms.tasks.Task;
 import com.google.maps.android.PolyUtil;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -52,12 +51,17 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
     private GoogleMap mMap;
     private static final String TAG = "MapsActivity";
     private final static int REQUEST_FINE_LOCATION = 1;
-    private final static float DEFAULT_ZOOM = 15f;
+    private final static float DEFAULT_ZOOM = 13f;
+    private final static int kmToM = 1000;
     private FusedLocationProviderClient mFusedLocationProviderClient;
-    private Map<Polyline, Segment> visibleSegments;
+    private List<Segment> receivedSegments;
+    private List<Segment> visibleSegments;
+    private List<Polyline> visiblePolylines;
     private List<Marker> visibleMarkers;
     private Wind currentWind;
     private Segment currentSegment;
+    private int minDist, maxDist, minGrade, maxGrade, minWind;
+    private boolean checkOptions;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -67,12 +71,19 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
-        visibleSegments = new HashMap<>();
+        receivedSegments = new ArrayList<>();
+        visibleSegments = new ArrayList<>();
         visibleMarkers = new ArrayList<>();
-//
-//        LatLngBounds.Builder builder = new LatLngBounds.Builder();
+        visiblePolylines = new ArrayList<>();
 
+        Bundle extras = getIntent().getExtras();
+        minDist = extras.getInt("minDist");
+        maxDist = extras.getInt("maxDist");
+        minGrade = extras.getInt("minGrade");
+        maxGrade = extras.getInt("maxGrade");
+        minWind = extras.getInt("minWind");
 
+        checkOptions = true;
 
     }
 
@@ -103,6 +114,9 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
         mMap.setOnMyLocationClickListener(this);
         mMap.setOnPolylineClickListener(this);
         mMap.setOnMarkerClickListener(this);
+
+        CustomInfoWindowAdapter customInfoWindowAdapter = new CustomInfoWindowAdapter(MapsActivity.this);
+        mMap.setInfoWindowAdapter(customInfoWindowAdapter);
         getCurrentLocation();
 
 
@@ -140,20 +154,28 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
                 .build();
 
         StravaAPI stravaAPI = retrofit.create(StravaAPI.class);
-        Call<SegmentRoot> call = stravaAPI.getSegments(bounds, StravaAPI.TOKEN);
+        Call<SegmentRoot> call = stravaAPI.getSegments(bounds, AuthActivity.getStravaAccessToken(this));
 
 
         call.enqueue(new Callback<SegmentRoot>() {
             @Override
             public void onResponse(Call<SegmentRoot> call, Response<SegmentRoot> response) {
                 SegmentRoot segmentsData = response.body();
-                Toast.makeText(getApplicationContext(),"Udało się pobrać segmenty", Toast.LENGTH_SHORT).show();
                 List<Segment> segments = segmentsData.getSegments();
-                for( Segment segment:segments){
-                    Log.d("ID ", segment.getId().toString());
-                    Log.d("NAME ", segment.getName());
-                    addSegmentToMap(segment.getPoints(), segment);
+                for( Segment segment : segments){
+                    segment.setPointsDecoded(PolyUtil.decode(segment.getPoints()));
+                    receivedSegments.add(segment);
+                    Log.d("SEGMENT ", "ADDED 1 SEGMENT");
+//                    boolean segmentAlreadyOnMap = false;
+//                    for (Segment visibleSegment : visibleSegments){
+//                        if(visibleSegment.getId().equals(segment.getId()))
+//                            segmentAlreadyOnMap = true;
+//                    }
+//                    if(!segmentAlreadyOnMap)
+////                        addSegmentToMap(segment.getPoints(), segment);
+//                        receivedSegments.add(segment);
                 }
+                getWeather();
             }
 
             @Override
@@ -164,29 +186,40 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
         });
     }
 
-    private void getWeather(List<Double> latLon){
-
+    private void getWeather(){
+        currentSegment = receivedSegments.get(0);
+        Log.d("WEATHER ", "POCZATEK");
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl(OpenWeatherMapAPI.BASE_URL)
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
 
         OpenWeatherMapAPI openWeatherMapAPI = retrofit.create(OpenWeatherMapAPI.class);
-        Call<WeatherRoot> call = openWeatherMapAPI.getWeatherByCoords(latLon.get(0).toString(), latLon.get(1).toString(),
-                OpenWeatherMapAPI.UNITS, OpenWeatherMapAPI.TOKEN);
+        Call<WeatherRoot> call = openWeatherMapAPI.getWeatherByCoords(currentSegment.getStartLatlng().get(0).toString()
+                ,currentSegment.getStartLatlng().get(1).toString()
+                ,OpenWeatherMapAPI.UNITS, OpenWeatherMapAPI.TOKEN);
 
 
         call.enqueue(new Callback<WeatherRoot>() {
             @Override
             public void onResponse(Call<WeatherRoot> call, Response<WeatherRoot> response) {
                 WeatherRoot weatherData = response.body();
-                Toast.makeText(getApplicationContext(),"Udało się pobrać dane pogodowe", Toast.LENGTH_SHORT).show();
+//                Toast.makeText(getApplicationContext(),"Udało się pobrać dane pogodowe", Toast.LENGTH_SHORT).show();
                 currentWind = new Wind(weatherData.getWind());
-                calculateWindOnSegment();
-//                Main weatherMainData = weatherData.getMain();
-//                Toast.makeText(getApplicationContext(),
-//                        "Temperatura: " + weatherMainData.getTemp().toString() + "\n Wiatr: " + currentWind.getDeg().toString(), Toast.LENGTH_LONG).show();
-
+                for (Segment receivedSegment : receivedSegments){
+                    receivedSegment.calculateWindOnSegment(currentWind);
+                }
+                Iterator<Segment> i = receivedSegments.iterator();
+                while (i.hasNext()){
+                    Segment segment = i.next();
+                    if(!segmentMeetsConditions(segment))
+                        i.remove();
+                }
+                for( Segment segment : receivedSegments){
+                    if(segmentMeetsConditions(segment))
+                        addSegmentToMap(segment);
+                }
+                updateMarkers();
             }
 
             @Override
@@ -205,53 +238,26 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
 
     @Override
     public boolean onMyLocationButtonClick() {
-        Toast.makeText(this, "MyLocation button clicked", Toast.LENGTH_SHORT).show();
-        // Return false so that we don't consume the event and the default behavior still occurs
-        // (the camera animates to the user's current position).
+        Toast.makeText(this, "MyLocation button clicked" + String.valueOf(minDist), Toast.LENGTH_SHORT).show();
         return false;
     }
 
     @Override
     public void onMyLocationClick(@NonNull Location location) {
-        Toast.makeText(this,boundsToString(mMap.getProjection().getVisibleRegion().latLngBounds),2*Toast.LENGTH_SHORT).show();
-        Log.d("AAAAAAAAAAAAAAAAAAA: ", "pRZED REMOVESEGMENTS");
+        Toast.makeText(this, boundsToString(mMap.getProjection().getVisibleRegion().latLngBounds),2*Toast.LENGTH_SHORT).show();
         removeSegmentsFromMap();
-        Log.d("AAAAAAAAAAAAAAAAAAA: ", "PO REMOVESEGMENTS");
         getSegments(boundsToString(mMap.getProjection().getVisibleRegion().latLngBounds));
-        Log.d("AAAAAAAAAAAAAAAAAAA: ", "PO GETSEGMENTS");
     }
 
     @Override
     public boolean onMarkerClick(Marker marker) {
-        Toast.makeText(this, "Wind " + String.valueOf(currentWind.getDeg())
-                , Toast.LENGTH_LONG).show();
         return false;
     }
 
     @Override
     public void onPolylineClick(Polyline polyline) {
-        currentSegment = visibleSegments.get(polyline);
-        getWeather(currentSegment.getStartLatlng());
-
 
     }
-
-    private void calculateWindOnSegment(){
-        WindOnSegment windOnSegment = new WindOnSegment(currentSegment, currentWind);
-        Toast.makeText(this, "Wind on segment: " + String.valueOf(windOnSegment.getCurrentWind().getDeg())
-                , Toast.LENGTH_SHORT).show();
-        windOnSegment.computeWindOnSegment();
-        Toast.makeText(this, "Procent trasy z wiatrem z przodu: " + String.valueOf(windOnSegment.getPercentageHeadWind())
-                , Toast.LENGTH_SHORT).show();
-        Toast.makeText(this, "Procent trasy z wiatrem z tyłu: " + String.valueOf(windOnSegment.getPercentageTailWind())
-                , Toast.LENGTH_SHORT).show();
-        Toast.makeText(this, "Procent trasy z wiatrem z prawej: " + String.valueOf(windOnSegment.getPercentageRightWind())
-                , Toast.LENGTH_SHORT).show();
-        Toast.makeText(this, "Procent trasy z wiatrem z lewej: " + String.valueOf(windOnSegment.getPercentageLeftWind())
-                , Toast.LENGTH_SHORT).show();
-    }
-
-
 
 
     private String boundsToString(LatLngBounds latLngBounds){
@@ -262,38 +268,63 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
         return southWest + "," + northEast;
     }
 
-    private void addSegmentToMap(String polyline, Segment segment){
-        segment.setPointsDecoded(PolyUtil.decode(polyline));
+    private void addSegmentToMap(Segment segment){
         LatLng startPoint = new LatLng(segment.getStartLatlng().get(0),segment.getStartLatlng().get(1));
         LatLng endPoint = new LatLng(segment.getEndLatlng().get(0),segment.getEndLatlng().get(1));
         segment.setStartPoint(startPoint);
+
         segment.setEndPoint(endPoint);
         Polyline segmentLine = mMap.addPolyline(new PolylineOptions()
                 .clickable(true)
                 .addAll(segment.getPointsDecoded()));
+        segment.setPolyline(segmentLine);
         Marker marker = mMap.addMarker(new MarkerOptions()
                 .position(segment.getPointsDecoded().get(0))
                 .title(segment.getName()));
         marker.setTag(segment);
 
-        visibleSegments.put(segmentLine, segment);
+        visibleSegments.add(segment);
+        visiblePolylines.add(segmentLine);
         visibleMarkers.add(marker);
 
     }
 
+    private boolean segmentMeetsConditions (Segment segment){
+        if(segment.getDistance() > minDist * kmToM && segment.getDistance() < maxDist * kmToM && segment.getAvgGrade() > minGrade
+                && segment.getAvgGrade() < maxGrade && segment.getWindOnSegment().getPercentageTailWind() > minWind)
+            return true;
+        return false;
+    }
+
+    private void updateMarkers(){
+        for(Marker marker : visibleMarkers){
+            Segment segmentOnMarker = (Segment) marker.getTag();
+            if(segmentOnMarker.getWindOnSegment().getPercentageTailWind() > 50){
+                marker.setIcon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN));
+            }
+            else if(segmentOnMarker.getWindOnSegment().getPercentageHeadWind() > 50){
+                marker.setIcon((BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)));
+            }
+            else{
+                marker.setIcon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ORANGE));
+            }
+        }
+    }
+
     private void removeSegmentsFromMap(){
-        for (Map.Entry<Polyline, Segment> entry : visibleSegments.entrySet()){
-            entry.getKey().remove();
+        for (Segment segment : visibleSegments){
+            segment.getPolyline().remove();
         }
         for(Marker marker : visibleMarkers){
             marker.remove();
         }
         visibleSegments.clear();
+        visiblePolylines.clear();
         visibleMarkers.clear();
     }
 
-    public void updateSegmentsOnMap(View view){
-        removeSegmentsFromMap();
+    public void updateSegmentsAndWeatherOnMap(View view){
+        receivedSegments.clear();
         getSegments(boundsToString(mMap.getProjection().getVisibleRegion().latLngBounds));
     }
 
