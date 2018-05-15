@@ -31,6 +31,9 @@ public class Segment {
     @SerializedName("avg_grade")
     @Expose
     private Double avgGrade;
+    @SerializedName("average_grade")
+    @Expose
+    private Double averageGrade;
     @SerializedName("start_latlng")
     @Expose
     private List<Double> startLatlng = null;
@@ -88,6 +91,7 @@ public class Segment {
         this.climbCategory = climbCategory;
         this.climbCategoryDesc = climbCategoryDesc;
         this.avgGrade = avgGrade;
+        this.averageGrade = averageGrade;
         this.startLatlng = startLatlng;
         this.endLatlng = endLatlng;
         this.elevDifference = elevDifference;
@@ -118,6 +122,10 @@ public class Segment {
 
     public Double getAvgGrade() {
         return avgGrade;
+    }
+    
+    public Double getAverageGrade() {
+        return averageGrade;
     }
 
     public List<Double> getStartLatlng() {
