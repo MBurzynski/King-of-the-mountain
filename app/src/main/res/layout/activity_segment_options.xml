@@ -149,10 +149,10 @@
         app:snp_maxValue="30"
         app:snp_minValue="-30"
         app:snp_stepSize="1"
-        app:snp_value="0"
+        app:snp_value="-5"
         app:snp_orientation="horizontal"
         app:snp_value_text_size="26sp"
-        app:snp_value_text_color="@color/black"
+        app:snp_value_text_color="@color/white"
         app:snp_buttonBackgroundTintSelector="@color/white"/>
 
     <com.michaelmuenzer.android.scrollablennumberpicker.ScrollableNumberPicker
@@ -173,7 +173,7 @@
         app:snp_value="10"
         app:snp_orientation="horizontal"
         app:snp_value_text_size="26sp"
-        app:snp_value_text_color="@color/black"
+        app:snp_value_text_color="@color/white"
         app:snp_buttonBackgroundTintSelector="@color/white"/>
 
     <TextView
@@ -206,7 +206,7 @@
         app:snp_value="30"
         app:snp_orientation="horizontal"
         app:snp_value_text_size="26sp"
-        app:snp_value_text_color="@color/black"
+        app:snp_value_text_color="@color/white"
         app:snp_buttonBackgroundTintSelector="@color/white"/>
 
     <Button

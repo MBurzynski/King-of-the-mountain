@@ -9,4 +9,6 @@
     <string name="segmentOptionsMaxGrade">Maksymalne nachylenie</string>
     <string name="segmentOptionsMinTailWind">Minimalny procent jazdy z wiatrem</string>
     <string name="segmentSearch">Szukaj</string>
+    <string name="viewStarredSegments">Pokaż segmenty na mapie</string>
+    <string name="starredSegmentsTitle">Ulubione segmenty</string>
 </resources>

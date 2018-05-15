@@ -43,7 +43,8 @@
             android:name=".MapsActivity"
             android:label="@string/title_activity_maps" />
         <activity android:name=".AuthActivity" />
-        <activity android:name=".SegmentOptions"></activity>
+        <activity android:name=".SegmentOptions" />
+        <activity android:name=".StarredSegmentsActivity"></activity>
     </application>
 
 </manifest>
