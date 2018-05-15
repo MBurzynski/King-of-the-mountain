@@ -18,6 +18,12 @@ public interface StravaAPI {
 
     @GET("segments/1687463")
     Call<Segment> getSegment(@Query("access_token") String access_token);
+    
+    @GET("segments/starred")
+    Call<SegmentRoot> listStarredSegments (@Query("per_page") String per_page, @Query("access_token") String access_token);
+    
+    @PUT("segments/{id}/starred")
+    Call<Segment> starSegment (@Path ("id") String id, @Field("starred") boolean starred);
 
 
 }
