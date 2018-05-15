@@ -175,7 +175,8 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
 ////                        addSegmentToMap(segment.getPoints(), segment);
 //                        receivedSegments.add(segment);
                 }
-                getWeather();
+                if(!receivedSegments.isEmpty())
+                    getWeather();
             }
 
             @Override
@@ -216,7 +217,7 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
                         i.remove();
                 }
                 if(receivedSegments.isEmpty())
-                    Toast.makeText(getApplicationContext(), "Brak segmentów spełniających podane kryteria w pobliżu", Toast.LENGHTH_SHORT).show();
+                    Toast.makeText(getApplicationContext(), "Brak segmentów spełniających podane kryteria w pobliżu", Toast.LENGTH_SHORT).show();
                 else{
                     for( Segment segment : receivedSegments){
                         if(segmentMeetsConditions(segment))
