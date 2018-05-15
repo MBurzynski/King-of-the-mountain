@@ -215,10 +215,14 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
                     if(!segmentMeetsConditions(segment))
                         i.remove();
                 }
-                for( Segment segment : receivedSegments){
-                    if(segmentMeetsConditions(segment))
-                        addSegmentToMap(segment);
-                }
+                if(receivedSegments.isEmpty())
+                    Toast.makeText(getApplicationContext(), "Brak segmentów spełniających podane kryteria w pobliżu", Toast.LENGHTH_SHORT).show();
+                else{
+                    for( Segment segment : receivedSegments){
+                        if(segmentMeetsConditions(segment))
+                            addSegmentToMap(segment);
+                    }
+               } 
                 updateMarkers();
             }
 
@@ -290,8 +294,8 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
     }
 
     private boolean segmentMeetsConditions (Segment segment){
-        if(segment.getDistance() > minDist * kmToM && segment.getDistance() < maxDist * kmToM && segment.getAvgGrade() > minGrade
-                && segment.getAvgGrade() < maxGrade && segment.getWindOnSegment().getPercentageTailWind() > minWind)
+        if(segment.getDistance() >= minDist * kmToM && segment.getDistance() <= maxDist * kmToM && segment.getAvgGrade() >= minGrade
+                && segment.getAvgGrade() <= maxGrade && segment.getWindOnSegment().getPercentageTailWind() >= minWind)
             return true;
         return false;
     }
