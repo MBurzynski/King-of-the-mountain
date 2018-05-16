@@ -29,7 +29,7 @@ public class MainActivity extends AppCompatActivity {
 
     public void searchStarredSegments(View view)
     {
-        Intent intent = new Intent(MainActivity.this, com.example.marcin.kingofthemountain.MapsActivity.class);
+        Intent intent = new Intent(MainActivity.this, com.example.marcin.kingofthemountain.StarredSegmentsActivity.class);
         startActivity(intent);
     }
 

@@ -52,7 +52,6 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
     private static final String TAG = "MapsActivity";
     private final static int REQUEST_FINE_LOCATION = 1;
     private final static float DEFAULT_ZOOM = 13f;
-    private final static int kmToM = 1000;
     private FusedLocationProviderClient mFusedLocationProviderClient;
     private List<Segment> receivedSegments;
     private List<Segment> visibleSegments;
@@ -166,14 +165,6 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
                     segment.setPointsDecoded(PolyUtil.decode(segment.getPoints()));
                     receivedSegments.add(segment);
                     Log.d("SEGMENT ", "ADDED 1 SEGMENT");
-//                    boolean segmentAlreadyOnMap = false;
-//                    for (Segment visibleSegment : visibleSegments){
-//                        if(visibleSegment.getId().equals(segment.getId()))
-//                            segmentAlreadyOnMap = true;
-//                    }
-//                    if(!segmentAlreadyOnMap)
-////                        addSegmentToMap(segment.getPoints(), segment);
-//                        receivedSegments.add(segment);
                 }
                 if(!receivedSegments.isEmpty())
                     getWeather();
@@ -213,14 +204,14 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
                 Iterator<Segment> i = receivedSegments.iterator();
                 while (i.hasNext()){
                     Segment segment = i.next();
-                    if(!segmentMeetsConditions(segment))
+                    if(!segment.segmentMeetsConditions(minDist,maxDist,minGrade,maxGrade,minWind))
                         i.remove();
                 }
                 if(receivedSegments.isEmpty())
                     Toast.makeText(getApplicationContext(), "Brak segmentów spełniających podane kryteria w pobliżu", Toast.LENGTH_SHORT).show();
                 else{
                     for( Segment segment : receivedSegments){
-                        if(segmentMeetsConditions(segment))
+                        if(segment.segmentMeetsConditions(minDist,maxDist,minGrade,maxGrade,minWind))
                             addSegmentToMap(segment);
                     }
                } 
@@ -249,9 +240,7 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
 
     @Override
     public void onMyLocationClick(@NonNull Location location) {
-        Toast.makeText(this, boundsToString(mMap.getProjection().getVisibleRegion().latLngBounds),2*Toast.LENGTH_SHORT).show();
-        removeSegmentsFromMap();
-        getSegments(boundsToString(mMap.getProjection().getVisibleRegion().latLngBounds));
+
     }
 
     @Override
@@ -294,13 +283,6 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
 
     }
 
-    private boolean segmentMeetsConditions (Segment segment){
-        if(segment.getDistance() >= minDist * kmToM && segment.getDistance() <= maxDist * kmToM && segment.getAvgGrade() >= minGrade
-                && segment.getAvgGrade() <= maxGrade && segment.getWindOnSegment().getPercentageTailWind() >= minWind)
-            return true;
-        return false;
-    }
-
     private void updateMarkers(){
         for(Marker marker : visibleMarkers){
             Segment segmentOnMarker = (Segment) marker.getTag();
@@ -316,7 +298,7 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
         }
     }
 
-    private void removeSegmentsFromMap(){
+    public void removeSegmentsFromMap(View view){
         for (Segment segment : visibleSegments){
             segment.getPolyline().remove();
         }

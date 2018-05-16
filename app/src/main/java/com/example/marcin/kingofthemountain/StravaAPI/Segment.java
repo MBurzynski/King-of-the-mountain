@@ -13,6 +13,8 @@ import com.google.gson.annotations.SerializedName;
 
 public class Segment {
 
+    private final static int kmToM = 1000;
+
     @SerializedName("id")
     @Expose
     private Integer id;
@@ -60,6 +62,8 @@ public class Segment {
 
     LatLng startPoint;
     LatLng endPoint;
+
+
 
     /**
      * No args constructor for use in serialization
@@ -199,5 +203,12 @@ public class Segment {
         WindOnSegment windOnSegment = new WindOnSegment(this, wind);
         this.setWindOnSegment(windOnSegment);
         windOnSegment.computeWindOnSegment();
+    }
+
+    public boolean segmentMeetsConditions (double minDist, double maxDist, double minGrade, double maxGrade, double minWind){
+        if(getDistance() >= minDist * kmToM && getDistance() <= maxDist * kmToM && getAvgGrade() >= minGrade
+                && getAvgGrade() <= maxGrade && getWindOnSegment().getPercentageTailWind() >= minWind)
+            return true;
+        return false;
     }
 }

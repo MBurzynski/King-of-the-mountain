@@ -44,10 +44,10 @@ public class ScrollListAdapter extends ArrayAdapter<Segment> {
         distance.setText(currentSegment.getDistance().toString() + " m");
 
         TextView grade = listItem.findViewById(R.id.textViewGrade);
-        grade.setText(currentSegment.getAvgGrade().toString() + " %");
+        grade.setText(currentSegment.getAverageGrade().toString() + " %");
 
-        TextView wind = listItem.findViewById(R.id.textViewDistance);
-        wind.setText(currentSegment.getWindOnSegment().getPercentageTailWind() + " %");
+//        TextView wind = listItem.findViewById(R.id.textViewDistance);
+//        wind.setText(currentSegment.getWindOnSegment().getPercentageTailWind() + " %");
 
         return listItem;
     }

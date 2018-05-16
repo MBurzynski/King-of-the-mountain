@@ -42,7 +42,7 @@ public class AuthActivity extends StravaAuthenticateActivity {
      * (default true)
      */
     protected boolean getStravaUseCache() {
-        return false;
+        return true;
     }
 
     /**
