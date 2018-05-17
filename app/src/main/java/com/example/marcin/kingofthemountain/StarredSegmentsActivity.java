@@ -27,7 +27,7 @@ public class StarredSegmentsActivity extends AppCompatActivity {
 
     private ListView starredSegments;
     private ScrollListAdapter scrollListAdapter;
-    private ArrayList<Segment> segmentList;
+    private List<Segment> segmentList;
     private String TAG = "STARRED";
 
     @Override
@@ -89,5 +89,15 @@ public class StarredSegmentsActivity extends AppCompatActivity {
             }
         });
 
+    }
+
+    public void displayStarredSegments(View view){
+        Intent intent = new Intent(StarredSegmentsActivity.this, MapsActivity.class);
+        ArrayList<String> segmentIds= new ArrayList<>();
+        for(Segment segment : segmentList){
+            segmentIds.add(segment.getId().toString());
+        }
+        intent.putStringArrayListExtra("starredSegments", segmentIds);
+        startActivity(intent);
     }
 }

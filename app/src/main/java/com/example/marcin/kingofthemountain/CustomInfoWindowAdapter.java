@@ -1,5 +1,6 @@
 package com.example.marcin.kingofthemountain;
 
+import android.app.Activity;
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -30,7 +31,7 @@ public class CustomInfoWindowAdapter implements GoogleMap.InfoWindowAdapter {
 
     @Override
     public View getInfoContents(Marker marker) {
-        View mWindow = mcontext.getLayoutInflater().inflate(R.layout.custom_info_window, null);
+        View mWindow = ((Activity)mContext).getLayoutInflater().inflate(R.layout.custom_info_window, null);
         Segment segment = (Segment) marker.getTag();
 
         TextView segmentName = mWindow.findViewById(R.id.segmentName);
@@ -42,12 +43,12 @@ public class CustomInfoWindowAdapter implements GoogleMap.InfoWindowAdapter {
         TextView grade = mWindow.findViewById(R.id.grade);
 
         segmentName.setText(segment.getName());
-        distance.setText(segment.getDistance().toString() + " m");
-        grade.setText(segment.getAvgGrade().toString() + " %");
-        headWind.setText("Pod wiatr: " + String.valueOf(Math.round(segment.getWindOnSegment().getPercentageHeadWind())) + "% trasy");
-        tailWind.setText("Z wiatrem: " + String.valueOf(Math.round(segment.getWindOnSegment().getPercentageTailWind())) + "% trasy");
-        leftWind.setText("Wiatr z lewej: " + String.valueOf(Math.round(segment.getWindOnSegment().getPercentageLeftWind())) + "% trasy");
-        rightWind.setText("Wiatr z prawej: " + String.valueOf(Math.round(segment.getWindOnSegment().getPercentageRightWind())) + "% trasy");
+        distance.setText(String.format("Dystans: %d m", Math.round(segment.getDistance())));
+        grade.setText(String.format("Nachylenie: " + segment.getAvgGrade()) + " %");
+        headWind.setText(String.format("Pod wiatr: %d %% trasy", Math.round(segment.getWindOnSegment().getPercentageHeadWind())));
+        tailWind.setText(String.format("Z wiatrem: %d %% trasy", Math.round(segment.getWindOnSegment().getPercentageTailWind())));
+        leftWind.setText(String.format("Wiatr z lewej: %d %% trasy", Math.round(segment.getWindOnSegment().getPercentageLeftWind())));
+        rightWind.setText(String.format("Wiatr z prawej: %d %% trasy", Math.round(segment.getWindOnSegment().getPercentageRightWind())));
         return mWindow;
     }
 }

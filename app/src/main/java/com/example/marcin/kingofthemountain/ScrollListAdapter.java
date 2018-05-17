@@ -23,7 +23,7 @@ public class ScrollListAdapter extends ArrayAdapter<Segment> {
     private Context mContext;
     private List<Segment> segmentList = new ArrayList<>();
 
-    public ScrollListAdapter(Context context, int resource, ArrayList<Segment> list) {
+    public ScrollListAdapter(Context context, int resource, List<Segment> list) {
         super(context, resource , list);
         mContext = context;
         segmentList = list;

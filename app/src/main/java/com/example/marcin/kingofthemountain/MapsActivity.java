@@ -57,10 +57,16 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
     private List<Segment> visibleSegments;
     private List<Polyline> visiblePolylines;
     private List<Marker> visibleMarkers;
+    private ArrayList<String> starredSegmentIds;
     private Wind currentWind;
     private Segment currentSegment;
     private int minDist, maxDist, minGrade, maxGrade, minWind;
     private boolean checkOptions;
+
+    Retrofit retrofitStrava;
+    StravaAPI stravaAPI;
+    Retrofit retrofitOpenWeather;
+    OpenWeatherMapAPI openWeatherMapAPI;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -81,6 +87,10 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
         minGrade = extras.getInt("minGrade");
         maxGrade = extras.getInt("maxGrade");
         minWind = extras.getInt("minWind");
+        if(extras.containsKey("starredSegments")){
+            starredSegmentIds = new ArrayList<>();
+            starredSegmentIds = extras.getStringArrayList("starredSegments");
+        }
 
         checkOptions = true;
 
@@ -118,6 +128,18 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
         mMap.setInfoWindowAdapter(customInfoWindowAdapter);
         getCurrentLocation();
 
+        retrofitStrava = new Retrofit.Builder()
+                .baseUrl(StravaAPI.BASE_URL)
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
+        stravaAPI = retrofitStrava.create(StravaAPI.class);
+
+        retrofitOpenWeather = new Retrofit.Builder()
+                .baseUrl(OpenWeatherMapAPI.BASE_URL)
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
+        openWeatherMapAPI = retrofitOpenWeather.create(OpenWeatherMapAPI.class);
+
 
     }
 
@@ -144,18 +166,27 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
         }
 
     }
+//
+//    private void getSegment(String id){
+//        Call<Segment> call = stravaAPI.getSegment(id, AuthActivity.getStravaAccessToken(this));
+//        call.enqueue(new Callback<Segment>() {
+//            @Override
+//            public void onResponse(Call<Segment> call, Response<Segment> response) {
+//                Segment segment = response.body();
+//                segment.setPointsDecoded(PolyUtil.decode(segment.getPoints()));
+//                    TODO
+//
+//            }
+//
+//            @Override
+//            public void onFailure(Call<Segment> call, Throwable t) {
+//
+//            }
+//        });
+//    }
 
     private void getSegments(String bounds){
-
-        Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl(StravaAPI.BASE_URL)
-                .addConverterFactory(GsonConverterFactory.create())
-                .build();
-
-        StravaAPI stravaAPI = retrofit.create(StravaAPI.class);
         Call<SegmentRoot> call = stravaAPI.getSegments(bounds, AuthActivity.getStravaAccessToken(this));
-
-
         call.enqueue(new Callback<SegmentRoot>() {
             @Override
             public void onResponse(Call<SegmentRoot> call, Response<SegmentRoot> response) {
@@ -180,13 +211,6 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
 
     private void getWeather(){
         currentSegment = receivedSegments.get(0);
-        Log.d("WEATHER ", "POCZATEK");
-        Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl(OpenWeatherMapAPI.BASE_URL)
-                .addConverterFactory(GsonConverterFactory.create())
-                .build();
-
-        OpenWeatherMapAPI openWeatherMapAPI = retrofit.create(OpenWeatherMapAPI.class);
         Call<WeatherRoot> call = openWeatherMapAPI.getWeatherByCoords(currentSegment.getStartLatlng().get(0).toString()
                 ,currentSegment.getStartLatlng().get(1).toString()
                 ,OpenWeatherMapAPI.UNITS, OpenWeatherMapAPI.TOKEN);
