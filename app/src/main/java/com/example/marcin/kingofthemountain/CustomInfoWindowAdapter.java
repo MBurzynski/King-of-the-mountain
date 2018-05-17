@@ -15,33 +15,13 @@ import com.google.android.gms.maps.model.Marker;
 
 public class CustomInfoWindowAdapter implements GoogleMap.InfoWindowAdapter {
 
-    private final View mWindow;
+    
     private Context mContext;
 
     public CustomInfoWindowAdapter(Context context) {
         mContext = context;
-        mWindow = LayoutInflater.from(context).inflate(R.layout.custom_info_window, null);
     }
 
-    private void setWindowText(Marker marker, View view){
-        Segment segment = (Segment) marker.getTag();
-
-        TextView segmentName = view.findViewById(R.id.segmentName);
-        TextView headWind = view.findViewById(R.id.headWind);
-        TextView tailWind = view.findViewById(R.id.tailWind);
-        TextView leftWind = view.findViewById(R.id.leftWind);
-        TextView rightWind = view.findViewById(R.id.rightWind);
-        TextView distance = view.findViewById(R.id.distance);
-        TextView grade = view.findViewById(R.id.grade);
-
-        segmentName.setText(segment.getName());
-        distance.setText(segment.getDistance().toString() + " m");
-        grade.setText(segment.getAvgGrade().toString() + " %");
-        headWind.setText("Pod wiatr: " + String.valueOf(Math.round(segment.getWindOnSegment().getPercentageHeadWind())) + "% trasy");
-        tailWind.setText("Z wiatrem: " + String.valueOf(Math.round(segment.getWindOnSegment().getPercentageTailWind())) + "% trasy");
-        leftWind.setText("Wiatr z lewej: " + String.valueOf(Math.round(segment.getWindOnSegment().getPercentageLeftWind())) + "% trasy");
-        rightWind.setText("Wiatr z prawej: " + String.valueOf(Math.round(segment.getWindOnSegment().getPercentageRightWind())) + "% trasy");
-    }
 
     @Override
     public View getInfoWindow(Marker marker) {
@@ -50,7 +30,24 @@ public class CustomInfoWindowAdapter implements GoogleMap.InfoWindowAdapter {
 
     @Override
     public View getInfoContents(Marker marker) {
-        setWindowText(marker, mWindow);
+        View mWindow = mcontext.getLayoutInflater().inflate(R.layout.custom_info_window, null);
+        Segment segment = (Segment) marker.getTag();
+
+        TextView segmentName = mWindow.findViewById(R.id.segmentName);
+        TextView headWind = mWindow.findViewById(R.id.headWind);
+        TextView tailWind = mWindow.findViewById(R.id.tailWind);
+        TextView leftWind = mWindow.findViewById(R.id.leftWind);
+        TextView rightWind = mWindow.findViewById(R.id.rightWind);
+        TextView distance = mWindow.findViewById(R.id.distance);
+        TextView grade = mWindow.findViewById(R.id.grade);
+
+        segmentName.setText(segment.getName());
+        distance.setText(segment.getDistance().toString() + " m");
+        grade.setText(segment.getAvgGrade().toString() + " %");
+        headWind.setText("Pod wiatr: " + String.valueOf(Math.round(segment.getWindOnSegment().getPercentageHeadWind())) + "% trasy");
+        tailWind.setText("Z wiatrem: " + String.valueOf(Math.round(segment.getWindOnSegment().getPercentageTailWind())) + "% trasy");
+        leftWind.setText("Wiatr z lewej: " + String.valueOf(Math.round(segment.getWindOnSegment().getPercentageLeftWind())) + "% trasy");
+        rightWind.setText("Wiatr z prawej: " + String.valueOf(Math.round(segment.getWindOnSegment().getPercentageRightWind())) + "% trasy");
         return mWindow;
     }
 }
