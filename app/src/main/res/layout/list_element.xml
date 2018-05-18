@@ -12,6 +12,7 @@
         android:layout_alignParentTop="true"
         android:layout_marginStart="15dp"
         android:layout_marginTop="15dp"
+        android:focusable="false"
         app:srcCompat="@android:drawable/btn_star_big_on" />
 
     <TextView
