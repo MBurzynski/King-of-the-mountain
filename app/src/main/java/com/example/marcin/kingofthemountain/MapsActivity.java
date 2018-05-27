@@ -2,6 +2,7 @@ package com.example.marcin.kingofthemountain;
 
 import android.Manifest;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.location.Location;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
@@ -46,22 +47,23 @@ import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLocationButtonClickListener,
-        GoogleMap.OnMyLocationClickListener,OnMapReadyCallback, GoogleMap.OnPolylineClickListener, GoogleMap.OnMarkerClickListener {
+        GoogleMap.OnMyLocationClickListener,OnMapReadyCallback, GoogleMap.OnPolylineClickListener, GoogleMap.OnMarkerClickListener, GoogleMap.OnInfoWindowClickListener {
 
     private GoogleMap mMap;
     private static final String TAG = "MapsActivity";
     private final static int REQUEST_FINE_LOCATION = 1;
     private final static float DEFAULT_ZOOM = 13f;
+    private final static float CLOSER_ZOOM = 15f;
     private FusedLocationProviderClient mFusedLocationProviderClient;
     private List<Segment> receivedSegments;
     private List<Segment> visibleSegments;
     private List<Polyline> visiblePolylines;
     private List<Marker> visibleMarkers;
-    private ArrayList<String> starredSegmentIds;
     private Wind currentWind;
     private Segment currentSegment;
     private int minDist, maxDist, minGrade, maxGrade, minWind;
     private boolean checkOptions;
+    private CustomInfoWindowAdapter customInfoWindowAdapter;
 
     Retrofit retrofitStrava;
     StravaAPI stravaAPI;
@@ -80,19 +82,6 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
         visibleSegments = new ArrayList<>();
         visibleMarkers = new ArrayList<>();
         visiblePolylines = new ArrayList<>();
-
-        Bundle extras = getIntent().getExtras();
-        minDist = extras.getInt("minDist");
-        maxDist = extras.getInt("maxDist");
-        minGrade = extras.getInt("minGrade");
-        maxGrade = extras.getInt("maxGrade");
-        minWind = extras.getInt("minWind");
-        if(extras.containsKey("starredSegments")){
-            starredSegmentIds = new ArrayList<>();
-            starredSegmentIds = extras.getStringArrayList("starredSegments");
-        }
-
-        checkOptions = true;
 
     }
 
@@ -123,10 +112,25 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
         mMap.setOnMyLocationClickListener(this);
         mMap.setOnPolylineClickListener(this);
         mMap.setOnMarkerClickListener(this);
+        mMap.setOnInfoWindowClickListener(this);
 
-        CustomInfoWindowAdapter customInfoWindowAdapter = new CustomInfoWindowAdapter(MapsActivity.this);
+        customInfoWindowAdapter = new CustomInfoWindowAdapter(MapsActivity.this);
         mMap.setInfoWindowAdapter(customInfoWindowAdapter);
-        getCurrentLocation();
+
+        mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
+            @Override
+            public void onMapClick(LatLng latLng) {
+                if(customInfoWindowAdapter.getLastMarker() != null){
+                    for(Polyline polyline:visiblePolylines){
+                        if(polyline.getTag().equals(customInfoWindowAdapter.getLastMarker())){
+                            polyline.setColor(Color.BLACK);
+                            polyline.setZIndex(1);
+                        }
+                    }
+                }
+            }
+        });
+
 
         retrofitStrava = new Retrofit.Builder()
                 .baseUrl(StravaAPI.BASE_URL)
@@ -140,6 +144,31 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
                 .build();
         openWeatherMapAPI = retrofitOpenWeather.create(OpenWeatherMapAPI.class);
 
+        Bundle extras = getIntent().getExtras();
+        minDist = extras.getInt("minDist");
+        maxDist = extras.getInt("maxDist");
+        minGrade = extras.getInt("minGrade");
+        maxGrade = extras.getInt("maxGrade");
+        minWind = extras.getInt("minWind");
+
+        if(extras.containsKey("starredSegments")){
+            for(Segment segment : StarredSegmentsActivity.segmentList){
+                addSegmentToMap(segment);
+            }
+            LatLng startPoint = new LatLng(StarredSegmentsActivity.segmentList.get(0).getStartLatlng().get(0),StarredSegmentsActivity.segmentList.get(0).getStartLatlng().get(1));
+            mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(startPoint,DEFAULT_ZOOM),2000,null);
+        }
+        else if(extras.containsKey("starredSegmentID")){
+            int id = extras.getInt("starredSegmentID");
+            Segment starredSegment = StarredSegmentsActivity.segmentList.get(id);
+            Log.d("MAPS","Pobrano ulubiony segment");
+            addSegmentToMap(starredSegment);
+            LatLng startPoint = new LatLng(starredSegment.getStartLatlng().get(0),starredSegment.getStartLatlng().get(1));
+            mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(startPoint,DEFAULT_ZOOM),2000,null);
+        }
+        else
+            getCurrentLocation();
+        updateMarkers();
 
     }
 
@@ -166,24 +195,24 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
         }
 
     }
-//
-//    private void getSegment(String id){
-//        Call<Segment> call = stravaAPI.getSegment(id, AuthActivity.getStravaAccessToken(this));
-//        call.enqueue(new Callback<Segment>() {
-//            @Override
-//            public void onResponse(Call<Segment> call, Response<Segment> response) {
-//                Segment segment = response.body();
-//                segment.setPointsDecoded(PolyUtil.decode(segment.getPoints()));
-//                    TODO
-//
-//            }
-//
-//            @Override
-//            public void onFailure(Call<Segment> call, Throwable t) {
-//
-//            }
-//        });
-//    }
+
+    private void getSegment(String id){
+        Call<Segment> call = stravaAPI.getSegment(id, AuthActivity.getStravaAccessToken(this));
+        call.enqueue(new Callback<Segment>() {
+            @Override
+            public void onResponse(Call<Segment> call, Response<Segment> response) {
+                Segment segment = response.body();
+                segment.setPointsDecoded(PolyUtil.decode(segment.getPoints()));
+
+
+            }
+
+            @Override
+            public void onFailure(Call<Segment> call, Throwable t) {
+
+            }
+        });
+    }
 
     private void getSegments(String bounds){
         Call<SegmentRoot> call = stravaAPI.getSegments(bounds, AuthActivity.getStravaAccessToken(this));
@@ -269,6 +298,12 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
 
     @Override
     public boolean onMarkerClick(Marker marker) {
+        for(Polyline polyline:visiblePolylines){
+            if(polyline.getTag().equals(marker)){
+                polyline.setColor(Color.YELLOW);
+                polyline.setZIndex(1);
+            }
+        }
         return false;
     }
 
@@ -276,6 +311,15 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
     public void onPolylineClick(Polyline polyline) {
 
     }
+
+    @Override
+    public void onInfoWindowClick(Marker marker) {
+        marker.hideInfoWindow();
+        Segment segment = (Segment) marker.getTag();
+        segment.setStarred(!segment.getStarred(), this);
+        marker.showInfoWindow();
+    }
+
 
 
     private String boundsToString(LatLngBounds latLngBounds){
@@ -300,6 +344,7 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
                 .position(segment.getPointsDecoded().get(0))
                 .title(segment.getName()));
         marker.setTag(segment);
+        segmentLine.setTag(marker);
 
         visibleSegments.add(segment);
         visiblePolylines.add(segmentLine);

@@ -64,6 +64,7 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
+
         android:progress="0"
         app:layout_constraintEnd_toEndOf="@+id/textViewMinDist"
         app:layout_constraintHorizontal_bias="0.0"
@@ -85,8 +86,11 @@
         android:layout_height="wrap_content"
         android:layout_marginEnd="8dp"
         android:layout_marginStart="8dp"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="24dp"
         android:text=""
+        android:textColor="@color/colorWhite"
+        android:textSize="18sp"
+        android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="@+id/textViewMinDist"
         app:layout_constraintStart_toStartOf="@+id/textViewMinDist"
         app:layout_constraintTop_toBottomOf="@+id/textViewMinDist" />
@@ -98,6 +102,9 @@
         android:layout_marginEnd="8dp"
         android:layout_marginStart="8dp"
         android:text=""
+        android:textColor="@color/colorWhite"
+        android:textSize="18sp"
+        android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="@+id/textViewMaxDist"
         app:layout_constraintStart_toStartOf="@+id/textViewMaxDist"
         app:layout_constraintTop_toTopOf="@+id/textViewMinDistVal" />
@@ -134,47 +141,74 @@
         android:orientation="vertical"
         app:layout_constraintGuide_begin="192dp" />
 
-    <com.michaelmuenzer.android.scrollablennumberpicker.ScrollableNumberPicker
-        android:id="@+id/numberPickerMinGrade"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="16dp"
-        app:layout_constraintEnd_toEndOf="@+id/textViewMinGrade"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="@+id/textViewMinGrade"
-        app:layout_constraintTop_toBottomOf="@+id/textViewMinGrade"
-        app:snp_scrollEnabled="true"
-        app:snp_updateInterval="25"
-        app:snp_maxValue="30"
-        app:snp_minValue="-30"
-        app:snp_stepSize="1"
-        app:snp_value="-5"
-        app:snp_orientation="horizontal"
-        app:snp_value_text_size="26sp"
-        app:snp_value_text_color="@color/white"
-        app:snp_buttonBackgroundTintSelector="@color/white"/>
 
-    <com.michaelmuenzer.android.scrollablennumberpicker.ScrollableNumberPicker
-        android:id="@+id/numberPickerMaxGrade"
-        android:layout_width="0dp"
+    <TextView
+        android:id="@+id/textViewMinGradeVal"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginEnd="8dp"
         android:layout_marginStart="8dp"
         android:layout_marginTop="16dp"
+        android:text=""
+        android:textColor="@color/colorWhite"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="@+id/textViewMinGrade"
+        app:layout_constraintStart_toStartOf="@+id/textViewMinGrade"
+        app:layout_constraintTop_toBottomOf="@+id/textViewMaxGrade" />
+
+    <TextView
+        android:id="@+id/textViewMaxGradeVal"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text=""
+        android:textColor="@color/colorWhite"
+        android:textSize="18sp"
+        android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="@+id/textViewMaxGrade"
-        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="@+id/textViewMaxGrade"
-        app:layout_constraintTop_toBottomOf="@+id/textViewMaxGrade"
-        app:snp_scrollEnabled="true"
-        app:snp_updateInterval="25"
-        app:snp_maxValue="30"
-        app:snp_minValue="-30"
-        app:snp_stepSize="1"
-        app:snp_value="10"
-        app:snp_orientation="horizontal"
-        app:snp_value_text_size="26sp"
-        app:snp_value_text_color="@color/white"
-        app:snp_buttonBackgroundTintSelector="@color/white"/>
+        app:layout_constraintTop_toBottomOf="@+id/textViewMaxGrade" />
+
+    <TextView
+        android:id="@+id/textViewMinTailWind"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:text=""
+        android:textColor="@color/colorWhite"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="@+id/textViewMinWind"
+        app:layout_constraintStart_toStartOf="@+id/textViewMinWind"
+        app:layout_constraintTop_toBottomOf="@+id/textViewMinWind" />
+
+    <SeekBar
+        android:id="@+id/seekBarMinGrade"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:layout_weight="1"
+        android:max="60"
+        android:progress="25"
+        app:layout_constraintEnd_toEndOf="@+id/seekBarMinDist"
+        app:layout_constraintStart_toStartOf="@+id/seekBarMinDist"
+        app:layout_constraintTop_toBottomOf="@+id/textViewMinGradeVal" />
+
+
+    <SeekBar
+        android:id="@+id/seekBarMaxGrade"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:max="60"
+        android:progress="35"
+        app:layout_constraintEnd_toEndOf="@+id/seekBarMaxDist"
+        app:layout_constraintStart_toStartOf="@+id/seekBarMaxDist"
+        app:layout_constraintTop_toTopOf="@+id/seekBarMinGrade" />
+
 
     <TextView
         android:id="@+id/textViewMinWind"
@@ -186,28 +220,7 @@
         android:textSize="16sp"
         app:layout_constraintEnd_toEndOf="@+id/textViewMaxGrade"
         app:layout_constraintStart_toStartOf="@+id/textViewMinGrade"
-        app:layout_constraintTop_toBottomOf="@+id/numberPickerMinGrade" />
-
-    <com.michaelmuenzer.android.scrollablennumberpicker.ScrollableNumberPicker
-        android:id="@+id/numberPickerMinWind"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="16dp"
-        app:layout_constraintEnd_toEndOf="@+id/textViewMinWind"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="@+id/textViewMinWind"
-        app:layout_constraintTop_toBottomOf="@+id/textViewMinWind"
-        app:snp_scrollEnabled="true"
-        app:snp_updateInterval="25"
-        app:snp_maxValue="100"
-        app:snp_minValue="0"
-        app:snp_stepSize="1"
-        app:snp_value="30"
-        app:snp_orientation="horizontal"
-        app:snp_value_text_size="26sp"
-        app:snp_value_text_color="@color/white"
-        app:snp_buttonBackgroundTintSelector="@color/white"/>
+        app:layout_constraintTop_toBottomOf="@+id/seekBarMinGrade" />
 
     <Button
         android:id="@+id/buttonSearch"
@@ -215,12 +228,23 @@
         android:layout_height="wrap_content"
         android:layout_marginEnd="8dp"
         android:layout_marginStart="8dp"
-        android:layout_marginTop="48dp"
-        android:text="@string/segmentSearch"
+        android:layout_marginTop="8dp"
         android:onClick="searchSegments"
+        android:text="@string/segmentSearch"
         app:layout_constraintEnd_toEndOf="@+id/textViewMinWind"
         app:layout_constraintStart_toStartOf="@+id/textViewMinWind"
-        app:layout_constraintTop_toBottomOf="@+id/numberPickerMinWind" />
+        app:layout_constraintTop_toBottomOf="@+id/seekBarMinTailWind" />
+
+    <SeekBar
+        android:id="@+id/seekBarMinTailWind"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:max="100"
+        android:progress="20"
+        app:layout_constraintEnd_toEndOf="@+id/textViewMinWind"
+        app:layout_constraintStart_toStartOf="@+id/textViewMinWind"
+        app:layout_constraintTop_toBottomOf="@+id/textViewMinTailWind" />
 
 
 </android.support.constraint.ConstraintLayout>

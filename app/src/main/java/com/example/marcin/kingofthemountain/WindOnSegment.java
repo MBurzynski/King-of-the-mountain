@@ -7,6 +7,7 @@ import com.example.marcin.kingofthemountain.StravaAPI.Segment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.maps.android.SphericalUtil;
 
+import java.io.Serializable;
 import java.util.List;
 
 import static java.lang.Math.abs;
@@ -15,7 +16,7 @@ import static java.lang.Math.abs;
  * Created by Marcin on 09-Apr-18.
  */
 
-public class WindOnSegment {
+public class WindOnSegment implements Serializable{
 
     private Segment currentSegment;
     private Wind currentWind;

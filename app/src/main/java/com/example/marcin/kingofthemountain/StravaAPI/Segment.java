@@ -1,9 +1,10 @@
 package com.example.marcin.kingofthemountain.StravaAPI;
 
-import android.widget.Toast;
-
+import android.content.Context;
+import android.util.Log;
 import java.util.List;
 
+import com.example.marcin.kingofthemountain.AuthActivity;
 import com.example.marcin.kingofthemountain.OpenWeatherMapAPI.Wind;
 import com.example.marcin.kingofthemountain.WindOnSegment;
 import com.google.android.gms.maps.model.LatLng;
@@ -11,7 +12,13 @@ import com.google.android.gms.maps.model.Polyline;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
-public class Segment {
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
+
+public class Segment{
 
     private final static int kmToM = 1000;
 
@@ -45,6 +52,7 @@ public class Segment {
     @SerializedName("elev_difference")
     @Expose
     private Double elevDifference;
+
     @SerializedName("distance")
     @Expose
     private Double distance;
@@ -54,6 +62,9 @@ public class Segment {
     @SerializedName("starred")
     @Expose
     private Boolean starred;
+    @SerializedName("map")
+    @Expose
+    private Map map;
 
     List<LatLng> pointsDecoded;
     Polyline polyline;
@@ -152,11 +163,40 @@ public class Segment {
         return points;
     }
 
+    public void setPoints(String points){
+        this.points = points;
+    }
+
     public Boolean getStarred() {
         return starred;
     }
 
-    public void setStarred(Boolean starred) {
+    public Map getMap() {
+        return map;
+    }
+
+    public void setStarred(Boolean starred, Context context) {
+        Retrofit retrofitStrava;
+        StravaAPI stravaAPI;
+        retrofitStrava = new Retrofit.Builder()
+                .baseUrl(StravaAPI.BASE_URL)
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
+        stravaAPI = retrofitStrava.create(StravaAPI.class);
+        Call<Segment> call = stravaAPI.starSegment(getId().toString(),starred, AuthActivity.getStravaAccessToken(context));
+        call.enqueue(new Callback<Segment>() {
+            @Override
+            public void onResponse(Call<Segment> call, Response<Segment> response) {
+                Log.d("SEGMENT","Segment set as starred/unstarred");
+                Segment temporarySegment = response.body();
+                Log.d("SEGMENT", temporarySegment.getStarred().toString());
+            }
+
+            @Override
+            public void onFailure(Call<Segment> call, Throwable t) {
+                Log.d("SEGMENT","Call FAILED");
+            }
+        });
         this.starred = starred;
     }
 
@@ -210,5 +250,10 @@ public class Segment {
                 && getAvgGrade() <= maxGrade && getWindOnSegment().getPercentageTailWind() >= minWind)
             return true;
         return false;
+    }
+
+
+    public void setDistance(Double distance) {
+        this.distance = distance;
     }
 }
