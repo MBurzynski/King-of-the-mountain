@@ -16,19 +16,19 @@ import static java.lang.Math.abs;
  * Created by Marcin on 09-Apr-18.
  */
 
-public class WindOnSegment implements Serializable{
+public class WindOnSegment{
 
     private Segment currentSegment;
     private Wind currentWind;
-    double percentageHeadWind;
-    double percentageTailWind;
-    double percentageLeftWind;
-    double percentageRightWind;
+    private double percentageHeadWind;
+    private double percentageTailWind;
+    private double percentageLeftWind;
+    private double percentageRightWind;
 
-    final static int TAIL = 0;
-    final static int RIGHT = 90;
-    final static int HEAD = 180;
-    final static int LEFT = 270;
+    private final static int TAIL = 0;
+    private final static int RIGHT = 90;
+    private final static int HEAD = 180;
+    private final static int LEFT = 270;
 
     public WindOnSegment(Segment currentSegment, Wind currentWind) {
         this.currentSegment = currentSegment;

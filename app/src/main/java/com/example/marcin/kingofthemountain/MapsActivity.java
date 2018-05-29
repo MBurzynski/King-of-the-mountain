@@ -65,6 +65,7 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
     private int minDist, maxDist, minGrade, maxGrade, minWind;
     boolean now;
     private int year, month, day, hour;
+    private boolean starredSegmentsActivity;
     private CustomInfoWindowAdapter customInfoWindowAdapter;
 
     Retrofit retrofitStrava;
@@ -165,6 +166,7 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
             now = true;
 
         if(extras.containsKey("starredSegments")){
+            starredSegmentsActivity = true;
             for(Segment segment : StarredSegmentsActivity.segmentList){
                 addSegmentToMap(segment);
             }
@@ -172,6 +174,7 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
             mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(startPoint,DEFAULT_ZOOM),2000,null);
         }
         else if(extras.containsKey("starredSegmentID")){
+            starredSegmentsActivity = true;
             int id = extras.getInt("starredSegmentID");
             Segment starredSegment = StarredSegmentsActivity.segmentList.get(id);
             Log.d("MAPS","Pobrano ulubiony segment");
@@ -179,8 +182,10 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
             LatLng startPoint = new LatLng(starredSegment.getStartLatlng().get(0),starredSegment.getStartLatlng().get(1));
             mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(startPoint,DEFAULT_ZOOM),2000,null);
         }
-        else
+        else {
+            starredSegmentsActivity = false;
             getCurrentLocation();
+        }
         updateMarkers();
 
     }
@@ -291,8 +296,16 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
                             break;
                         }
                     }
-                    currentWind = new Wind(actualForecast.getWind());
-                    drawSegmentsRegardingWind();
+                    try {
+                        currentWind = new Wind(actualForecast.getWind());
+                        drawSegmentsRegardingWind();
+                    }
+                    catch (NullPointerException e){
+                        e.printStackTrace();
+                        Toast.makeText(MapsActivity.this,"Nie znaleziono pogody dla podanego terminu", Toast.LENGTH_SHORT).show();
+                    }
+
+
 
                 }
 
@@ -313,15 +326,15 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
         Iterator<Segment> i = receivedSegments.iterator();
         while (i.hasNext()) {
             Segment segment = i.next();
-            if (!segment.segmentMeetsConditions(minDist, maxDist, minGrade, maxGrade, minWind))
-                i.remove();
+            if(!starredSegmentsActivity)
+                if (!segment.segmentMeetsConditions(minDist, maxDist, minGrade, maxGrade, minWind))
+                    i.remove();
         }
         if (receivedSegments.isEmpty())
-            Toast.makeText(getApplicationContext(), "Brak segmentów spełniających podane kryteria w pobliżu", Toast.LENGTH_SHORT).show();
+            Toast.makeText(MapsActivity.this, "Brak segmentów spełniających podane kryteria w pobliżu", Toast.LENGTH_SHORT).show();
         else {
             for (Segment segment : receivedSegments) {
-                if (segment.segmentMeetsConditions(minDist, maxDist, minGrade, maxGrade, minWind))
-                    addSegmentToMap(segment);
+                addSegmentToMap(segment);
             }
         }
         updateMarkers();

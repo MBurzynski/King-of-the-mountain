@@ -48,6 +48,7 @@ public class CustomInfoWindowAdapter implements GoogleMap.InfoWindowAdapter {
         TextView rightWind = mWindow.findViewById(R.id.rightWind);
         TextView distance = mWindow.findViewById(R.id.distance);
         TextView grade = mWindow.findViewById(R.id.grade);
+        TextView windSpeed = mWindow.findViewById(R.id.textViewWindSpeed);
 
 
 
@@ -65,6 +66,7 @@ public class CustomInfoWindowAdapter implements GoogleMap.InfoWindowAdapter {
         tailWind.setText(String.format("Z wiatrem: %d %% trasy", Math.round(segment.getWindOnSegment().getPercentageTailWind())));
         leftWind.setText(String.format("Wiatr z lewej: %d %% trasy", Math.round(segment.getWindOnSegment().getPercentageLeftWind())));
         rightWind.setText(String.format("Wiatr z prawej: %d %% trasy", Math.round(segment.getWindOnSegment().getPercentageRightWind())));
+        windSpeed.setText(String.valueOf(segment.getWindOnSegment().getCurrentWind().getSpeed()) + " m/s");
         return mWindow;
     }
 

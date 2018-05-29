@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.Button;
 import android.widget.ListView;
 import android.widget.Toast;
 
@@ -34,6 +35,7 @@ public class StarredSegmentsActivity extends AppCompatActivity {
     public static List<Segment> segmentList;
     private String TAG = "STARRED";
     private Wind currentWind;
+    private Button showAllStarred;
 
     Retrofit retrofitStrava;
     StravaAPI stravaAPI;
@@ -46,6 +48,7 @@ public class StarredSegmentsActivity extends AppCompatActivity {
         setContentView(R.layout.activity_starred_segments);
 
         starredSegments = findViewById(R.id.listViewStarredSegments);
+        showAllStarred = findViewById(R.id.buttonShowStarredSegments);
 
         segmentList = new ArrayList<>();
 
@@ -120,6 +123,7 @@ public class StarredSegmentsActivity extends AppCompatActivity {
                     });
 
                 }
+                showAllStarred.setEnabled(true);
 
 
             }
