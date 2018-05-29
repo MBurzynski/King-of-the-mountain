@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">kingofthemountain</string>
+    <string name="app_name">King of the mountain</string>
     <string name="title_activity_maps">Map</string>
     <string name="title_activity_auth">AuthActivity</string>
     <string name="segmentOptionsTitle">Wybierz parametry wyświetlanych segmentów</string>

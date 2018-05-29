@@ -13,6 +13,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
+import com.example.marcin.kingofthemountain.OpenWeatherMapAPI.ForecastRoot;
 import com.example.marcin.kingofthemountain.OpenWeatherMapAPI.OpenWeatherMapAPI;
 import com.example.marcin.kingofthemountain.OpenWeatherMapAPI.WeatherRoot;
 import com.example.marcin.kingofthemountain.OpenWeatherMapAPI.Wind;
@@ -62,7 +63,8 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
     private Wind currentWind;
     private Segment currentSegment;
     private int minDist, maxDist, minGrade, maxGrade, minWind;
-    private boolean checkOptions;
+    boolean now;
+    private int year, month, day, hour;
     private CustomInfoWindowAdapter customInfoWindowAdapter;
 
     Retrofit retrofitStrava;
@@ -125,6 +127,7 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
                         if(polyline.getTag().equals(customInfoWindowAdapter.getLastMarker())){
                             polyline.setColor(Color.BLACK);
                             polyline.setZIndex(1);
+                            break;
                         }
                     }
                 }
@@ -150,6 +153,16 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
         minGrade = extras.getInt("minGrade");
         maxGrade = extras.getInt("maxGrade");
         minWind = extras.getInt("minWind");
+
+        if(extras.containsKey("year")){
+            year = extras.getInt("year");
+            month = extras.getInt("month");
+            day = extras.getInt("day");
+            hour = extras.getInt("hour");
+            now = false;
+        }
+        else
+            now = true;
 
         if(extras.containsKey("starredSegments")){
             for(Segment segment : StarredSegmentsActivity.segmentList){
@@ -196,23 +209,6 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
 
     }
 
-    private void getSegment(String id){
-        Call<Segment> call = stravaAPI.getSegment(id, AuthActivity.getStravaAccessToken(this));
-        call.enqueue(new Callback<Segment>() {
-            @Override
-            public void onResponse(Call<Segment> call, Response<Segment> response) {
-                Segment segment = response.body();
-                segment.setPointsDecoded(PolyUtil.decode(segment.getPoints()));
-
-
-            }
-
-            @Override
-            public void onFailure(Call<Segment> call, Throwable t) {
-
-            }
-        });
-    }
 
     private void getSegments(String bounds){
         Call<SegmentRoot> call = stravaAPI.getSegments(bounds, AuthActivity.getStravaAccessToken(this));
@@ -240,43 +236,95 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
 
     private void getWeather(){
         currentSegment = receivedSegments.get(0);
-        Call<WeatherRoot> call = openWeatherMapAPI.getWeatherByCoords(currentSegment.getStartLatlng().get(0).toString()
-                ,currentSegment.getStartLatlng().get(1).toString()
-                ,OpenWeatherMapAPI.UNITS, OpenWeatherMapAPI.TOKEN);
+        if(now) {
+            Call<WeatherRoot> call = openWeatherMapAPI.getWeatherByCoords(currentSegment.getStartLatlng().get(0).toString()
+                    , currentSegment.getStartLatlng().get(1).toString()
+                    , OpenWeatherMapAPI.UNITS, OpenWeatherMapAPI.TOKEN);
 
 
-        call.enqueue(new Callback<WeatherRoot>() {
-            @Override
-            public void onResponse(Call<WeatherRoot> call, Response<WeatherRoot> response) {
-                WeatherRoot weatherData = response.body();
-//                Toast.makeText(getApplicationContext(),"Udało się pobrać dane pogodowe", Toast.LENGTH_SHORT).show();
-                currentWind = new Wind(weatherData.getWind());
-                for (Segment receivedSegment : receivedSegments){
-                    receivedSegment.calculateWindOnSegment(currentWind);
+            call.enqueue(new Callback<WeatherRoot>() {
+                @Override
+                public void onResponse(Call<WeatherRoot> call, Response<WeatherRoot> response) {
+                    WeatherRoot weatherData = response.body();
+
+                    currentWind = new Wind(weatherData.getWind());
+                    drawSegmentsRegardingWind();
+
                 }
-                Iterator<Segment> i = receivedSegments.iterator();
-                while (i.hasNext()){
-                    Segment segment = i.next();
-                    if(!segment.segmentMeetsConditions(minDist,maxDist,minGrade,maxGrade,minWind))
-                        i.remove();
+
+                @Override
+                public void onFailure(Call<WeatherRoot> call, Throwable t) {
+                    Toast.makeText(getApplicationContext(), "Nie udało się pobrać danych pogodowych: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                    Log.d("Błąd: ", t.getMessage());
                 }
-                if(receivedSegments.isEmpty())
-                    Toast.makeText(getApplicationContext(), "Brak segmentów spełniających podane kryteria w pobliżu", Toast.LENGTH_SHORT).show();
-                else{
-                    for( Segment segment : receivedSegments){
-                        if(segment.segmentMeetsConditions(minDist,maxDist,minGrade,maxGrade,minWind))
-                            addSegmentToMap(segment);
+            });
+        }
+        else {
+            final String dateAndTime;
+            String monthS, hourS;
+            if(hour<10)
+                hourS = "0" + String.valueOf(hour);
+            else
+                hourS = String.valueOf(hour);
+
+            if(month<10)
+                monthS = "0" + String.valueOf(month);
+            else
+                monthS = String.valueOf(month);
+
+            dateAndTime = String.valueOf(year) + "-" + monthS + "-" + String.valueOf(day) + " "
+                    + hourS + ":00:00";
+
+            Call<ForecastRoot> call = openWeatherMapAPI.getFutureWeather(currentSegment.getStartLatlng().get(0).toString()
+                    , currentSegment.getStartLatlng().get(1).toString()
+                    , OpenWeatherMapAPI.UNITS, OpenWeatherMapAPI.TOKEN);
+
+            call.enqueue(new Callback<ForecastRoot>() {
+                @Override
+                public void onResponse(Call<ForecastRoot> call, Response<ForecastRoot> response) {
+                    com.example.marcin.kingofthemountain.OpenWeatherMapAPI.List actualForecast = null;
+                    ForecastRoot forecastRoot = response.body();
+                    List<com.example.marcin.kingofthemountain.OpenWeatherMapAPI.List> listOfForecasts = forecastRoot.getList();
+                    for(com.example.marcin.kingofthemountain.OpenWeatherMapAPI.List forecast : listOfForecasts){
+                        if(dateAndTime.equals(forecast.getDtTxt())) {
+                            actualForecast = forecast;
+                            break;
+                        }
                     }
-               } 
-                updateMarkers();
-            }
+                    currentWind = new Wind(actualForecast.getWind());
+                    drawSegmentsRegardingWind();
 
-            @Override
-            public void onFailure(Call<WeatherRoot> call, Throwable t) {
-                Toast.makeText(getApplicationContext(),"Nie udało się pobrać danych pogodowych: " + t.getMessage(), Toast.LENGTH_SHORT).show();
-                Log.d("Błąd: ", t.getMessage());
+                }
+
+                @Override
+                public void onFailure(Call<ForecastRoot> call, Throwable t) {
+                    Toast.makeText(getApplicationContext(), "Nie udało się pobrać danych pogodowych: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                    Log.d("Błąd: ", t.getMessage());
+
+                }
+            });
+        }
+    }
+
+    private void drawSegmentsRegardingWind(){
+        for (Segment receivedSegment : receivedSegments) {
+            receivedSegment.calculateWindOnSegment(currentWind);
+        }
+        Iterator<Segment> i = receivedSegments.iterator();
+        while (i.hasNext()) {
+            Segment segment = i.next();
+            if (!segment.segmentMeetsConditions(minDist, maxDist, minGrade, maxGrade, minWind))
+                i.remove();
+        }
+        if (receivedSegments.isEmpty())
+            Toast.makeText(getApplicationContext(), "Brak segmentów spełniających podane kryteria w pobliżu", Toast.LENGTH_SHORT).show();
+        else {
+            for (Segment segment : receivedSegments) {
+                if (segment.segmentMeetsConditions(minDist, maxDist, minGrade, maxGrade, minWind))
+                    addSegmentToMap(segment);
             }
-        });
+        }
+        updateMarkers();
     }
 
 
@@ -303,6 +351,8 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
                 polyline.setColor(Color.YELLOW);
                 polyline.setZIndex(1);
             }
+            else
+                polyline.setColor(Color.BLACK);
         }
         return false;
     }

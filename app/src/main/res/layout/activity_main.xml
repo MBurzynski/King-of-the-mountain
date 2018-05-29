@@ -18,22 +18,11 @@
         android:layout_height="wrap_content"
         android:layout_marginEnd="8dp"
         android:layout_marginStart="8dp"
-        android:layout_marginTop="24dp"
         android:onClick="pickOptions"
-        android:text="Wyszukaj segment"
+        android:text="Segmenty w pobliżu"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <TextView
-        android:id="@+id/textViewToken"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="72dp"
-        android:layout_marginTop="224dp"
-        android:text="token"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/buttonFindSegment" />
+        app:layout_constraintTop_toBottomOf="@+id/logoMainScreen" />
 
     <Button
         android:id="@+id/buttonStarredSegments"
@@ -47,5 +36,18 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/buttonFindSegment" />
+
+    <ImageView
+        android:id="@+id/logoMainScreen"
+        android:layout_width="650px"
+        android:layout_height="315px"
+        android:layout_marginTop="40dp"
+        android:background="@drawable/wind"
+        android:foregroundGravity="center"
+        android:scaleType="fitXY"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
 </android.support.constraint.ConstraintLayout>

@@ -20,4 +20,8 @@ public interface OpenWeatherMapAPI {
     @GET("weather")
     Call<WeatherRoot> getWeatherByCoords(@Query("lat") String latitude, @Query("lon") String longitude, @Query("units") String units, @Query("appid") String access_token);
 
+    @GET("forecast")
+    Call<ForecastRoot> getFutureWeather(@Query("lat") String latitude, @Query("lon") String longitude, @Query("units") String units, @Query("appid") String access_token);
+
+
 }

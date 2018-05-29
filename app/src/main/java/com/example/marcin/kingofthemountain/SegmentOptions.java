@@ -12,6 +12,8 @@ public class SegmentOptions extends AppCompatActivity{
     SeekBar minDistBar, maxDistBar;
     TextView minDistText, maxDistText, minGradeText, maxGradeText, minTailWindText;
     int minDistVal, maxDistVal;
+    boolean now;
+    private int year, month, day, hour;
     SeekBar minGrade, maxGrade, minWind;
     final static int MIN_GRADE = -30;
 
@@ -31,11 +33,23 @@ public class SegmentOptions extends AppCompatActivity{
         minWind = findViewById(R.id.seekBarMinTailWind);
         minDistVal = 0;
         maxDistVal = 100;
-        minDistText.setText("0 km");
-        maxDistText.setText("100 km");
+        minDistText.setText(Integer.toString(minDistBar.getProgress()) + " km");
+        maxDistText.setText(Integer.toString(maxDistBar.getProgress()) + " km");
         minGradeText.setText(Integer.toString(MIN_GRADE + minGrade.getProgress()) + " %");
         maxGradeText.setText(Integer.toString(MIN_GRADE + maxGrade.getProgress()) + " %");
         minTailWindText.setText(Integer.toString(minWind.getProgress()) + " %");
+
+        Bundle extras = getIntent().getExtras();
+        if(extras != null){
+            year = extras.getInt("year");
+            month = extras.getInt("month");
+            day = extras.getInt("day");
+            hour = extras.getInt("hour");
+            now = false;
+        }
+        else
+            now = true;
+
 
 
 
@@ -138,6 +152,13 @@ public class SegmentOptions extends AppCompatActivity{
         intent.putExtra("minGrade", MIN_GRADE + minGrade.getProgress());
         intent.putExtra("maxGrade", MIN_GRADE + maxGrade.getProgress());
         intent.putExtra("minWind", minWind.getProgress());
+
+        if(!now){
+            intent.putExtra("year", year);
+            intent.putExtra("month", month);
+            intent.putExtra("day", day);
+            intent.putExtra("hour", hour);
+        }
         startActivity(intent);
     }
 

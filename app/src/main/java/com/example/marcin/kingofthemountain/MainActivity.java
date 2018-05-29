@@ -14,16 +14,13 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        TextView token = findViewById(R.id.textViewToken);
-        token.setText(AuthActivity.getStravaAccessToken(this));
-
 
     }
 
 
     public void pickOptions(View view)
     {
-        Intent intent = new Intent(MainActivity.this, com.example.marcin.kingofthemountain.SegmentOptions.class);
+        Intent intent = new Intent(MainActivity.this, com.example.marcin.kingofthemountain.SegmentTime.class);
         startActivity(intent);
     }
 
